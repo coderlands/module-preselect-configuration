@@ -10,7 +10,7 @@
     "magento/module-swatches": "100.4.*"
   },
   "license": [
-    "Mozilla Public License (MPL)"
+    "MIT"
   ],
   "autoload": {
     "files": [
