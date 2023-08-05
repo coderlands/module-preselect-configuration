@@ -2,6 +2,7 @@
 
 namespace CodeLands\PreSelected\Plugin\ConfigurableProduct\Block\Product\View\Type;
 
+use CodeLands\PreSelected\Model\Config\ConfigProvider;
 use Magento\ConfigurableProduct\Block\Product\View\Type\Configurable as Subject;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\InventorySalesApi\Api\Data\SalesChannelInterface;
@@ -15,9 +16,9 @@ class AddAdditionalInfo
     private $jsonSerializer;
 
     /**
-     * @var StoreManagerInterface
+     * @var ConfigProvider
      */
-    private $storeManager;
+    private $configProvider;
 
     /**
      * @param Json $jsonSerializer
@@ -25,22 +26,45 @@ class AddAdditionalInfo
      */
     public function __construct(
         Json $jsonSerializer,
-        StoreManagerInterface $storeManager
+        ConfigProvider $configProvider
     ) {
         $this->jsonSerializer = $jsonSerializer;
-        $this->storeManager = $storeManager;
+        $this->configProvider = $configProvider;
     }
 
     public function afterGetJsonConfig(Subject $configurable, string $result): string
     {
+        if (! $this->configProvider->isEnabled()) {
+            return $result;
+        }
+
+        $type = $this->configProvider->getType();
         $jsonConfig = $this->jsonSerializer->unserialize($result);
-        $product = $configurable->getProduct();
-        $selectedProductId = $product->getPreSelected();
-        if (isset($jsonConfig['index'][$selectedProductId])) {
-            $preSelectedAttributeId = $jsonConfig['index'][$selectedProductId];
-        } else {
-            $selectedProductId = array_key_first($jsonConfig['sku']);
-            $preSelectedAttributeId = $jsonConfig['index'][$selectedProductId];
+
+        switch ($type) {
+            case '1':
+                $product = $configurable->getProduct();
+                $selectedProductId = $product->getPreSelected();
+                if (isset($jsonConfig['index'][$selectedProductId])) {
+                    $preSelectedAttributeId = $jsonConfig['index'][$selectedProductId];
+                } else {
+                    $selectedProductId = array_key_first($jsonConfig['sku']);
+                    $preSelectedAttributeId = $jsonConfig['index'][$selectedProductId];
+                }
+
+                break;
+            case '2':
+                $selectedProductId = array_key_first($jsonConfig['sku']);
+                $preSelectedAttributeId = $jsonConfig['index'][$selectedProductId];
+                break;
+            case '3':
+                $product = $configurable->getProduct();
+                $selectedProductId = $product->getPreSelected();
+                if (! isset($jsonConfig['index'][$selectedProductId])) {
+                    return $result;
+                }
+                $preSelectedAttributeId = $jsonConfig['index'][$selectedProductId];
+                break;
         }
 
         $jsonConfig['pre_selected'] = [];
