@@ -28,11 +28,11 @@ class PreSelected implements ModifierInterface
             return $data;
         }
 
-        $firstAvailableMatrix = false;
+        $firstAvailableMatrix = null;
         $flag = false;
 
         foreach ($data[$productId]['configurable-matrix'] as $key => &$matrix) {
-            if (! $firstAvailableMatrix && $matrix['qty'] > 0) {
+            if ($firstAvailableMatrix !== null && $matrix['qty'] > 0) {
                 $firstAvailableMatrix = $key;
             }
             if (isset($matrix['id'], $matrix['qty']) && $matrix['id'] == $product->getPreSelected() && $matrix['qty'] > 0) {
