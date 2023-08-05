@@ -1,0 +1,23 @@
+{
+  "name": "code-lands/module-preselect-configuration",
+  "version": "1.0.0",
+  "description": "N/A",
+  "type": "magento2-module",
+  "require": {
+    "magento/framework": "*",
+    "magento/module-catalog": "104.0.*",
+    "magento/module-configurable-product": "100.4.*",
+    "magento/module-swatches": "100.4.*"
+  },
+  "license": [
+    "Mozilla Public License (MPL)"
+  ],
+  "autoload": {
+    "files": [
+      "registration.php"
+    ],
+    "psr-4": {
+      "CodeLands\\PreSelected\\": ""
+    }
+  }
+}
